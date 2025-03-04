@@ -1,0 +1,50 @@
+# 🚀 Python Virtual Environment
+myenv/
+.env
+
+# 🚀 Python Cache Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# DVC Cache
+.dvc/
+
+
+# 🚀 Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# 🚀 Logs & Temporary Files
+*.log
+*.out
+*.tmp
+.DS_Store
+
+# 🚀 DVC (Tracked Data & Models)
+data/
+data/raw/
+data/processed/
+models/
+
+
+# 🚀 Flask & Web App Files
+instance/
+*.sqlite3
+*.db
+
+# 🚀 VS Code & IDE Configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 🚀 Node.js & Frontend (if applicable)
+node_modules/
+package-lock.json
+yarn.lock
+
+# 🚀 Deployment Files (Optional)
+*.pem
+config.yaml
+params.yaml

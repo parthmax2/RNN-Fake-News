@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Arial", sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 10px;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+            color: #555;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Fake News Detector</h2>
+        <textarea id="newsInput" placeholder="Enter news text..."></textarea>
+        <button onclick="predictNews()">Predict</button>
+        <p class="loading" id="loading">Analyzing... Please wait.</p>
+        <p class="result" id="result"></p>
+    </div>
+
+    <script>
+        function predictNews() {
+            let newsText = document.getElementById("newsInput").value.trim();
+            let resultDiv = document.getElementById("result");
+            let loadingDiv = document.getElementById("loading");
+
+            if (newsText === "") {
+                resultDiv.innerHTML = "⚠️ Please enter some text!";
+                resultDiv.style.color = "red";
+                return;
+            }
+
+            // Show loading
+            resultDiv.innerHTML = "";
+            loadingDiv.style.display = "block";
+
+            fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "news_text=" + encodeURIComponent(newsText)
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingDiv.style.display = "none";
+                resultDiv.innerHTML = `Prediction: <span style="color: ${data.prediction === 'Fake News' ? 'red' : 'green'}">${data.prediction}</span> <br> Confidence: ${Math.round(data.confidence * 100)}%`;
+            })
+            .catch(error => {
+                loadingDiv.style.display = "none";
+                resultDiv.innerHTML = "❌ Error analyzing text!";
+                resultDiv.style.color = "red";
+            });
+        }
+    </script>
+</body>
+</html>
