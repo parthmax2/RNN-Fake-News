@@ -58,7 +58,12 @@
             transition: background 0.3s ease;
         }
 
-        button:hover {
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
             background-color: #0056b3;
         }
 
@@ -67,6 +72,8 @@
             font-size: 18px;
             font-weight: bold;
             color: #333;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
 
         .loading {
@@ -81,7 +88,7 @@
     <div class="container">
         <h2>Fake News Detector</h2>
         <textarea id="newsInput" placeholder="Enter news text..."></textarea>
-        <button onclick="predictNews()">Predict</button>
+        <button id="predictBtn" onclick="predictNews()">Predict</button>
         <p class="loading" id="loading">Analyzing... Please wait.</p>
         <p class="result" id="result"></p>
     </div>
@@ -91,14 +98,17 @@
             let newsText = document.getElementById("newsInput").value.trim();
             let resultDiv = document.getElementById("result");
             let loadingDiv = document.getElementById("loading");
+            let predictBtn = document.getElementById("predictBtn");
 
             if (newsText === "") {
                 resultDiv.innerHTML = "⚠️ Please enter some text!";
                 resultDiv.style.color = "red";
+                resultDiv.style.opacity = "1";
                 return;
             }
 
-            // Show loading
+            // Disable button and show loading
+            predictBtn.disabled = true;
             resultDiv.innerHTML = "";
             loadingDiv.style.display = "block";
 
@@ -107,15 +117,27 @@
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: "news_text=" + encodeURIComponent(newsText)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Server Error");
+                }
+                return response.json();
+            })
             .then(data => {
                 loadingDiv.style.display = "none";
+                predictBtn.disabled = false;
                 resultDiv.innerHTML = `Prediction: <span style="color: ${data.prediction === 'Fake News' ? 'red' : 'green'}">${data.prediction}</span> <br> Confidence: ${Math.round(data.confidence * 100)}%`;
+                resultDiv.style.opacity = "1";
+
+                // Optionally clear input after prediction
+                document.getElementById("newsInput").value = "";
             })
             .catch(error => {
                 loadingDiv.style.display = "none";
-                resultDiv.innerHTML = "❌ Error analyzing text!";
+                predictBtn.disabled = false;
+                resultDiv.innerHTML = "❌ Error analyzing text! Please try again.";
                 resultDiv.style.color = "red";
+                resultDiv.style.opacity = "1";
             });
         }
     </script>

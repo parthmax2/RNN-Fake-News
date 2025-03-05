@@ -48,3 +48,5 @@ yarn.lock
 *.pem
 config.yaml
 params.yaml
+/models
+/data
