@@ -4,140 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fake News Detector</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Arial", sans-serif;
-        }
-
-        body {
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-        }
-
-        h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-            font-size: 16px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
-            margin-top: 10px;
-            width: 100%;
-            transition: background 0.3s ease;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        button:hover:not(:disabled) {
-            background-color: #0056b3;
-        }
-
-        .result {
-            margin-top: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .loading {
-            display: none;
-            margin-top: 10px;
-            color: #555;
-            font-size: 14px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #fff; color: #000; transition: background 0.3s, color 0.3s; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 30px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }
+        .navbar a { color: #000; font-size: 30px; text-decoration: none; font-weight: bold; }
+        .toggle-btn { padding: 10px 20px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .toggle-btn:hover { background: #555; }
+        .container { text-align: center; margin-top: 50px; }
+        textarea { width: 80%; height: 150px; padding: 10px; font-size: 16px; border: 2px solid #000; border-radius: 8px; }
+        .check-btn { margin-top: 20px; padding: 12px 24px; font-size: 16px; border: none; background: #007BFF; color: white; border-radius: 8px; cursor: pointer; }
+        .check-btn:hover { background: #0056b3; }
+        #result { margin-top: 20px; font-size: 20px; font-weight: bold; }
+        footer { position: fixed; bottom: 0; width: 100%; background: #fff; padding: 10px; text-align: center; border-top: 1px solid #ccc; }
+        .footer-content a { margin: 0 10px; color: #000; text-decoration: none; font-size: 18px; }
+        .footer-content a:hover { color: #007BFF; }
+        body.dark-mode { background: #121212; color: #fff; }
+        body.dark-mode .navbar, body.dark-mode footer { background: #121212; color: #fff; }
+        body.dark-mode .navbar a, body.dark-mode .footer-content a { color: #fff; }
+        body.dark-mode textarea { background: #333; color: white; border-color: white; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Fake News Detector</h2>
-        <textarea id="newsInput" placeholder="Enter news text..."></textarea>
-        <button id="predictBtn" onclick="predictNews()">Predict</button>
-        <p class="loading" id="loading">Analyzing... Please wait.</p>
-        <p class="result" id="result"></p>
+    <div class="navbar">
+        <a href="#">Fake News Detector</a>
+        <button class="toggle-btn" onclick="toggleTheme()">Toggle Dark Mode</button>
     </div>
 
-    <script>
-        function predictNews() {
-            let newsText = document.getElementById("newsInput").value.trim();
-            let resultDiv = document.getElementById("result");
-            let loadingDiv = document.getElementById("loading");
-            let predictBtn = document.getElementById("predictBtn");
+    <div class="container">
+        <h1>Check if the News is Fake or Real</h1>
+        <textarea id="newsInput" placeholder="Enter news text here..."></textarea>
+        <br>
+        <button class="check-btn" onclick="checkNews()">Check News</button>
+        <p id="result"></p>
+    </div>
 
-            if (newsText === "") {
-                resultDiv.innerHTML = "⚠️ Please enter some text!";
-                resultDiv.style.color = "red";
-                resultDiv.style.opacity = "1";
+    <footer>
+        <div class="footer-content">
+            <a href="https://www.linkedin.com/in/sakshampathak" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/parthmax2" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.instagram.com/parthmax_" target="_blank"><i class="fab fa-instagram"></i></a>
+        </div>
+        <p>Developed by <strong>Parthmax</strong></p>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function checkNews() {
+            const inputText = document.getElementById('newsInput').value.trim();
+            if (inputText === "") {
+                alert("Please enter news text.");
                 return;
             }
 
-            // Disable button and show loading
-            predictBtn.disabled = true;
-            resultDiv.innerHTML = "";
-            loadingDiv.style.display = "block";
-
-            fetch("/predict", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "news_text=" + encodeURIComponent(newsText)
+            // Send request to Flask backend
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ news: inputText })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Server Error");
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                loadingDiv.style.display = "none";
-                predictBtn.disabled = false;
-                resultDiv.innerHTML = `Prediction: <span style="color: ${data.prediction === 'Fake News' ? 'red' : 'green'}">${data.prediction}</span> <br> Confidence: ${Math.round(data.confidence * 100)}%`;
-                resultDiv.style.opacity = "1";
-
-                // Optionally clear input after prediction
-                document.getElementById("newsInput").value = "";
+                if (data.error) {
+                    document.getElementById('result').innerText = "Error: " + data.error;
+                } else {
+                    document.getElementById('result').innerText = `${data.prediction} (Confidence: ${data.confidence})`;
+                }
             })
             .catch(error => {
-                loadingDiv.style.display = "none";
-                predictBtn.disabled = false;
-                resultDiv.innerHTML = "❌ Error analyzing text! Please try again.";
-                resultDiv.style.color = "red";
-                resultDiv.style.opacity = "1";
+                console.error("Error:", error);
+                document.getElementById('result').innerText = "Error occurred. Try again.";
             });
         }
     </script>
